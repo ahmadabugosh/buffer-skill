@@ -1,0 +1,506 @@
+# Buffer Skill for OpenClaw
+
+## Overview
+Build an OpenClaw skill that integrates with Buffer's GraphQL API, enabling users to create, schedule, and manage social media posts from the command line or through OpenClaw conversations.
+
+## Goals
+1. Create a production-ready CLI tool for Buffer API
+2. Support multi-channel posting (Twitter, LinkedIn, Facebook, Instagram, etc.)
+3. Enable scheduling and queue management
+4. Provide clear documentation and examples
+5. Portfolio piece demonstrating GraphQL API integration
+
+## Target Completion
+All features complete and tested by end of day (March 3, 2026).
+
+## Technical Stack
+- **Language:** Node.js (ESM modules)
+- **API:** Buffer GraphQL API (https://developers.buffer.com/)
+- **Auth:** API key-based (Bearer token)
+- **CLI Framework:** Commander.js
+- **HTTP Client:** Axios or fetch
+- **Testing:** Vitest
+- **Styling:** Chalk for terminal colors
+
+---
+
+## Core Features
+
+### 1. Authentication & Setup
+- [ ] Store API key securely (`.env` file or config)
+- [ ] Validate API key on first use
+- [ ] Clear error messages for auth failures
+- [ ] `.env.example` template for users
+
+### 2. CLI Commands
+
+#### `buffer profiles`
+- [ ] List all connected social media profiles
+- [ ] Show profile ID, service name, username
+- [ ] Format output clearly (table or list)
+
+**Example output:**
+```
+Connected Profiles:
+✓ Twitter (@learnopenclaw) - ID: abc123
+✓ LinkedIn (Ahmad Abugosh) - ID: def456
+✓ Facebook (Learn OpenClaw) - ID: ghi789
+```
+
+#### `buffer post <text>`
+- [ ] Create a post with text content
+- [ ] Options:
+  - `--profile <id>` - Single profile
+  - `--profiles <ids>` - Comma-separated profile IDs
+  - `--all` - Post to all profiles
+  - `--time <datetime>` - Schedule for specific time (ISO 8601)
+  - `--queue` - Add to queue instead of immediate/scheduled
+  - `--image <path>` - Attach image (local file path)
+  - `--draft` - Create as idea/draft instead of post
+- [ ] Validate inputs (text length, file exists, etc.)
+- [ ] Clear success messages with post IDs/URLs
+
+**Examples:**
+```bash
+# Immediate post to Twitter
+buffer post "Hello world!" --profile twitter
+
+# Schedule for tomorrow 2pm
+buffer post "Scheduled content" --profile linkedin --time "2026-03-03T14:00:00Z"
+
+# Multi-channel with image
+buffer post "Check this out!" --profiles twitter,linkedin --image ./photo.jpg
+
+# Add to queue
+buffer post "Queue this" --profile twitter --queue
+
+# Create draft
+buffer post "Draft idea" --profile twitter --draft
+```
+
+#### `buffer queue`
+- [ ] View pending/scheduled posts
+- [ ] Show: post text (truncated), profile(s), scheduled time
+- [ ] Option: `--profile <id>` to filter by profile
+- [ ] Option: `--limit <n>` to show only N posts
+
+**Example output:**
+```
+Upcoming Posts (5):
+
+1. "Hello world!" → Twitter
+   Scheduled: Tomorrow at 9:00 AM
+
+2. "Check out our new feature..." → LinkedIn, Twitter
+   Scheduled: Tomorrow at 2:00 PM
+   
+...
+```
+
+#### `buffer ideas`
+- [ ] List saved ideas/drafts
+- [ ] Show text preview, created date
+- [ ] Option: `--limit <n>`
+
+### 3. GraphQL Integration
+
+#### API Wrapper (`lib/buffer-api.js`)
+- [ ] GraphQL client setup
+- [ ] Authentication header injection
+- [ ] Error handling for:
+  - Network errors
+  - API errors (rate limits, invalid token, etc.)
+  - Validation errors
+- [ ] Rate limit handling (60 req/min per Buffer docs)
+
+#### Required GraphQL Operations
+- [ ] **Query: Get Profiles**
+  ```graphql
+  query GetProfiles {
+    profiles {
+      id
+      service
+      username
+    }
+  }
+  ```
+
+- [ ] **Mutation: Create Post**
+  ```graphql
+  mutation CreatePost($input: CreatePostInput!) {
+    createPost(input: $input) {
+      id
+      text
+      scheduledAt
+      profiles {
+        id
+        service
+      }
+    }
+  }
+  ```
+
+- [ ] **Query: Get Scheduled Posts**
+  ```graphql
+  query GetScheduledPosts($profileId: ID) {
+    scheduledPosts(profileId: $profileId) {
+      id
+      text
+      scheduledAt
+      profiles {
+        service
+        username
+      }
+    }
+  }
+  ```
+
+- [ ] **Mutation: Create Idea**
+  ```graphql
+  mutation CreateIdea($input: CreateIdeaInput!) {
+    createIdea(input: $input) {
+      id
+      text
+    }
+  }
+  ```
+
+- [ ] **Query: Get Ideas**
+  ```graphql
+  query GetIdeas {
+    ideas {
+      id
+      text
+      createdAt
+    }
+  }
+  ```
+
+### 4. File Structure
+```
+skills/buffer/
+├── SKILL.md              # OpenClaw skill documentation
+├── README.md             # Project overview
+├── package.json          # Dependencies
+├── buffer.js             # Main CLI entry point (chmod +x)
+├── lib/
+│   ├── buffer-api.js    # GraphQL API wrapper
+│   ├── auth.js          # Auth handling and validation
+│   ├── config.js        # Config file management
+│   └── utils.js         # Helper functions (date parsing, formatting)
+├── examples/
+│   ├── basic-post.js    # Simple post example
+│   ├── scheduled-post.js
+│   ├── multi-channel.js
+│   └── with-image.js
+├── tests/
+│   ├── api.test.js      # API wrapper tests
+│   ├── cli.test.js      # CLI command tests
+│   └── utils.test.js    # Utility function tests
+├── .env.example         # Template for API key
+└── .gitignore           # Ignore .env, node_modules
+```
+
+### 5. Error Handling
+- [ ] Network failures (timeout, offline)
+- [ ] API errors (401, 403, 429, 500)
+- [ ] Invalid inputs (missing required fields, invalid dates)
+- [ ] File not found (for images)
+- [ ] Rate limit exceeded (clear message + retry suggestion)
+- [ ] All errors should have:
+  - **What failed** (clear description)
+  - **Why it failed** (root cause)
+  - **How to fix** (actionable suggestion)
+
+**Example error:**
+```
+❌ Failed to create post
+
+Reason: API authentication failed (401 Unauthorized)
+
+Fix: 
+1. Check your API key in .env
+2. Generate a new key at: https://publish.buffer.com/settings/api
+3. Make sure the key starts with "Bearer "
+
+Need help? Visit: https://developers.buffer.com/
+```
+
+### 6. Testing
+- [ ] Unit tests for API wrapper
+- [ ] Unit tests for utilities (date parsing, validation)
+- [ ] Integration tests with Buffer API (if possible, or mocked)
+- [ ] CLI command tests
+- [ ] Minimum 80% code coverage
+- [ ] All tests passing
+
+### 7. Documentation
+
+#### SKILL.md
+- [ ] Quick start guide
+- [ ] Authentication setup
+- [ ] Command reference with examples
+- [ ] Common use cases
+- [ ] Troubleshooting section
+- [ ] OpenClaw integration examples
+
+**Example OpenClaw usage:**
+```
+You: "Post to Buffer: 'Just shipped a new feature! 🚀' to Twitter"
+
+Rose: *executes buffer post command*
+✅ Posted to Twitter (@learnopenclaw)
+🔗 https://twitter.com/learnopenclaw/status/...
+```
+
+#### README.md
+- [ ] Project overview
+- [ ] Installation instructions
+- [ ] Quick start
+- [ ] API documentation link
+- [ ] Contributing guidelines
+
+#### Code Comments
+- [ ] All functions documented with JSDoc
+- [ ] Complex logic explained
+- [ ] GraphQL queries documented
+
+### 8. Quality & Polish
+- [ ] Consistent code style (use Prettier/ESLint if time permits)
+- [ ] Meaningful variable names
+- [ ] No hardcoded values (use constants/config)
+- [ ] Helpful terminal output (colors, emojis, clear formatting)
+- [ ] Loading indicators for API calls (use `ora` or similar)
+- [ ] Success confirmations with actionable next steps
+
+---
+
+## Dependencies
+
+```json
+{
+  "name": "buffer-skill",
+  "version": "1.0.0",
+  "type": "module",
+  "bin": {
+    "buffer": "./buffer.js"
+  },
+  "dependencies": {
+    "commander": "^12.0.0",
+    "axios": "^1.6.0",
+    "dotenv": "^16.4.0",
+    "chalk": "^5.3.0",
+    "ora": "^8.0.0"
+  },
+  "devDependencies": {
+    "vitest": "^1.3.0"
+  },
+  "scripts": {
+    "test": "vitest run",
+    "test:watch": "vitest"
+  }
+}
+```
+
+---
+
+## Implementation Order
+
+### Phase 1: Foundation (Tasks 1-10)
+1. Initialize project structure
+2. Set up package.json with dependencies
+3. Create `.env.example` and `.gitignore`
+4. Implement `lib/config.js` for API key management
+5. Implement `lib/auth.js` for validation
+6. Create basic CLI skeleton with Commander
+7. Implement `buffer profiles` command (basic version)
+8. Set up GraphQL client in `lib/buffer-api.js`
+9. Implement GetProfiles query
+10. Test profiles command end-to-end
+
+### Phase 2: Core Posting (Tasks 11-20)
+11. Implement `lib/utils.js` with date parsing and validation
+12. Implement CreatePost mutation in API wrapper
+13. Create `buffer post` command with basic options
+14. Add `--profile` option
+15. Add `--time` scheduling option
+16. Add `--queue` option
+17. Add `--profiles` (multi-channel) option
+18. Add `--all` option
+19. Test posting to single profile
+20. Test multi-channel posting
+
+### Phase 3: Images & Ideas (Tasks 21-28)
+21. Implement image upload support (if Buffer API supports it, or document limitation)
+22. Add `--image` option to post command
+23. Implement CreateIdea mutation
+24. Add `--draft` option to post command
+25. Implement `buffer ideas` command
+26. Implement GetIdeas query
+27. Test idea creation
+28. Test image posting (or document workaround)
+
+### Phase 4: Queue Management (Tasks 29-33)
+29. Implement GetScheduledPosts query
+30. Create `buffer queue` command
+31. Add `--profile` filter option
+32. Add `--limit` option
+33. Test queue viewing
+
+### Phase 5: Error Handling (Tasks 34-40)
+34. Add network error handling to API wrapper
+35. Add rate limit detection and friendly errors
+36. Add auth error handling (401, 403)
+37. Add input validation for all commands
+38. Add file existence check for images
+39. Add date parsing validation
+40. Test all error scenarios
+
+### Phase 6: Testing (Tasks 41-48)
+41. Write API wrapper unit tests
+42. Write utils unit tests
+43. Write CLI command tests
+44. Write integration tests (mocked or real API)
+45. Ensure 80%+ coverage
+46. Fix failing tests
+47. Add test documentation
+48. All tests passing
+
+### Phase 7: Documentation (Tasks 49-56)
+49. Write SKILL.md with quick start
+50. Add command reference to SKILL.md
+51. Add examples to SKILL.md
+52. Add troubleshooting section
+53. Write README.md
+54. Add JSDoc comments to all functions
+55. Create example files (examples/*.js)
+56. Add inline code comments
+
+### Phase 8: Polish (Tasks 57-63)
+57. Add colored output with Chalk
+58. Add loading indicators with Ora
+59. Format all output clearly (tables, lists)
+60. Add success messages with next steps
+61. Make buffer.js executable (chmod +x)
+62. Test full workflow end-to-end
+63. Final cleanup and verification
+
+### Phase 9: GitHub & Deployment (Tasks 64-68)
+64. Initialize git repository
+65. Create GitHub repo: `buffer-skill`
+66. Push to GitHub
+67. Add GitHub URL to SKILL.md and README
+68. Tag release v1.0.0
+
+---
+
+## Acceptance Criteria
+
+### Must Have (Critical)
+- ✅ CLI works: `buffer profiles`, `buffer post`, `buffer queue`, `buffer ideas`
+- ✅ Authentication working with Buffer API
+- ✅ Can create immediate posts
+- ✅ Can schedule posts for future time
+- ✅ Multi-channel posting works
+- ✅ Queue management works
+- ✅ Clear error messages for all failures
+- ✅ Tests written and passing
+- ✅ Documentation complete (SKILL.md, README.md)
+- ✅ Code pushed to GitHub
+
+### Nice to Have (If Time Permits)
+- Image upload support
+- Idea management (create/list)
+- Profile aliases (save "twitter" instead of profile ID)
+- Config file for default profiles
+- Prettier/ESLint setup
+
+### Out of Scope
+- Edit/delete posts (not supported by Buffer API yet)
+- TikTok support (not available in API)
+- OAuth flow (API key is simpler)
+- Web UI (CLI only)
+
+---
+
+## Definition of Done
+
+A task is complete when:
+1. Code is written and working
+2. Tests are passing (if applicable)
+3. Documentation is updated
+4. Committed to git with clear message
+5. Checkbox is checked in this PRD
+
+The project is complete when:
+1. All 68 tasks are checked off
+2. All tests passing
+3. End-to-end workflow tested manually
+4. Code pushed to GitHub
+5. SKILL.md and README.md complete
+
+---
+
+## Buffer API Reference
+
+**Base URL:** `https://api.buffer.com/graphql` (verify in docs)
+
+**Authentication:**
+```
+Authorization: Bearer YOUR_API_KEY
+```
+
+**Get API Key:** https://publish.buffer.com/settings/api
+
+**Developer Docs:** https://developers.buffer.com/
+
+**Rate Limits:** 60 requests per minute per user
+
+**Supported Channels:**
+- Instagram
+- Threads  
+- LinkedIn
+- X/Twitter
+- Facebook
+- Google Business Profiles
+- Mastodon
+- YouTube
+- Pinterest
+- Bluesky
+
+**Not Supported:**
+- TikTok
+
+---
+
+## Success Metrics
+
+By end of project, we should have:
+- ✅ Working CLI tool
+- ✅ 68/68 tasks complete
+- ✅ Tests passing (80%+ coverage)
+- ✅ Documentation complete
+- ✅ GitHub repo created
+- ✅ Portfolio-ready project
+
+---
+
+## Notes
+
+- Buffer's API is GraphQL (not REST), so structure queries/mutations accordingly
+- API is in beta, so some features may be limited
+- Focus on what's supported now (create posts, schedule, queue, ideas)
+- Don't spend time on unsupported features (edit/delete)
+- This is a portfolio piece for Ahmad's Buffer job application, so quality matters!
+- Ahmad trusts Rose to fix issues independently - no need to ask for permission
+
+---
+
+## Emergency Contact
+
+If RALPH gets stuck or needs help:
+- Rose will monitor progress via RALPH Telegram updates
+- Rose will debug and fix issues autonomously
+- Goal: Complete by end of March 3, 2026 (tomorrow)
+
+Let's ship this! 🚀
