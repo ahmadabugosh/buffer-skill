@@ -125,7 +125,7 @@ Upcoming Posts (5):
   }
   ```
 
-- [ ] **Mutation: Create Post**
+- [x] **Mutation: Create Post**
   ```graphql
   mutation CreatePost($input: CreatePostInput!) {
     createPost(input: $input) {
@@ -228,7 +228,7 @@ Need help? Visit: https://developers.buffer.com/
 
 ### 6. Testing
 - [x] Unit tests for API wrapper
-- [ ] Unit tests for utilities (date parsing, validation)
+- [x] Unit tests for utilities (date parsing, validation)
 - [x] Integration tests with Buffer API (if possible, or mocked)
 - [x] CLI command tests
 - [ ] Minimum 80% code coverage
@@ -319,8 +319,8 @@ Rose: *executes buffer post command*
 10. [x] Test profiles command end-to-end
 
 ### Phase 2: Core Posting (Tasks 11-20)
-11. Implement `lib/utils.js` with date parsing and validation
-12. Implement CreatePost mutation in API wrapper
+11. [x] Implement `lib/utils.js` with date parsing and validation
+12. [x] Implement CreatePost mutation in API wrapper
 13. Create `buffer post` command with basic options
 14. Add `--profile` option
 15. Add `--time` scheduling option
@@ -358,7 +358,7 @@ Rose: *executes buffer post command*
 
 ### Phase 6: Testing (Tasks 41-48)
 41. Write API wrapper unit tests
-42. Write utils unit tests
+42. [x] Write utils unit tests
 43. Write CLI command tests
 44. Write integration tests (mocked or real API)
 45. Ensure 80%+ coverage
