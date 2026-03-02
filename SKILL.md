@@ -33,12 +33,15 @@ Get key: https://publish.buffer.com/settings/api
 ## Command Reference
 
 ### `buffer profiles`
+
 List all connected profiles.
 
 ### `buffer post <text>`
+
 Create content.
 
 Options:
+
 - `--profile <id>`: single target profile
 - `--profiles <ids>`: comma-separated profile IDs
 - `--all`: all connected profiles
@@ -48,16 +51,20 @@ Options:
 - `--draft`: save as idea/draft instead of post
 
 ### `buffer queue`
+
 View scheduled/queued posts.
 
 Options:
+
 - `--profile <id>`: filter by profile
 - `--limit <n>`: max results
 
 ### `buffer ideas`
+
 List saved ideas.
 
 Options:
+
 - `--limit <n>`: max results
 
 ## Common Use Cases

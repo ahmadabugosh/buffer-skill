@@ -8,6 +8,7 @@ import {
   formatPostSuccess,
   formatQueuePosts,
   formatIdeas,
+  formatIdeaSuccess,
 } from '../buffer.js';
 
 describe('buffer CLI', () => {
@@ -24,14 +25,18 @@ describe('buffer CLI', () => {
   });
 
   it('formats connected profiles output', () => {
-    const output = formatProfiles([{ id: 'abc123', service: 'Twitter', username: 'learnopenclaw' }]);
+    const output = formatProfiles([
+      { id: 'abc123', service: 'Twitter', username: 'learnopenclaw' },
+    ]);
     expect(output).toContain('Connected Profiles');
     expect(output).toContain('abc123');
     expect(output).toContain('Twitter');
   });
 
   it('executes profiles command', async () => {
-    const getProfiles = vi.fn().mockResolvedValue([{ id: '1', service: 'LinkedIn', username: 'ahmad' }]);
+    const getProfiles = vi
+      .fn()
+      .mockResolvedValue([{ id: '1', service: 'LinkedIn', username: 'ahmad' }]);
     const cli = createCli({ api: { getProfiles } });
 
     await cli.parseAsync(['node', 'buffer', 'profiles']);
@@ -48,7 +53,14 @@ describe('buffer CLI', () => {
     });
     const cli = createCli({ api: { createPost } });
 
-    await cli.parseAsync(['node', 'buffer', 'post', 'Hello world', '--profile', 'twitter_profile_id']);
+    await cli.parseAsync([
+      'node',
+      'buffer',
+      'post',
+      'Hello world',
+      '--profile',
+      'twitter_profile_id',
+    ]);
 
     expect(createPost).toHaveBeenCalledWith({
       text: 'Hello world',
@@ -98,7 +110,16 @@ describe('buffer CLI', () => {
     });
     const cli = createCli({ api: { createPost } });
 
-    await cli.parseAsync(['node', 'buffer', 'post', 'With image', '--profile', 'twitter_id', '--image', imagePath]);
+    await cli.parseAsync([
+      'node',
+      'buffer',
+      'post',
+      'With image',
+      '--profile',
+      'twitter_id',
+      '--image',
+      imagePath,
+    ]);
 
     expect(createPost).toHaveBeenCalledWith({
       text: 'With image',
@@ -112,7 +133,9 @@ describe('buffer CLI', () => {
 
   it('uses all connected profiles with --all', async () => {
     const getProfiles = vi.fn().mockResolvedValue([{ id: 'p1' }, { id: 'p2' }]);
-    const createPost = vi.fn().mockResolvedValue({ id: 'post_3', text: 'All profiles', profiles: [] });
+    const createPost = vi
+      .fn()
+      .mockResolvedValue({ id: 'post_3', text: 'All profiles', profiles: [] });
     const cli = createCli({ api: { getProfiles, createPost } });
 
     await cli.parseAsync(['node', 'buffer', 'post', 'All profiles', '--all', '--queue']);
@@ -152,7 +175,15 @@ describe('buffer CLI', () => {
     const createIdea = vi.fn().mockResolvedValue({ id: 'idea_1', text: 'Draft idea' });
     const cli = createCli({ api: { createIdea } });
 
-    await cli.parseAsync(['node', 'buffer', 'post', 'Draft idea', '--profile', 'twitter_profile_id', '--draft']);
+    await cli.parseAsync([
+      'node',
+      'buffer',
+      'post',
+      'Draft idea',
+      '--profile',
+      'twitter_profile_id',
+      '--draft',
+    ]);
 
     expect(createIdea).toHaveBeenCalledWith({
       text: 'Draft idea',
@@ -175,7 +206,16 @@ describe('buffer CLI', () => {
     const createPost = vi.fn();
     const cli = createCli({ api: { createPost } });
 
-    await cli.parseAsync(['node', 'buffer', 'post', 'Hello', '--profile', 'p1', '--time', 'not-a-date']);
+    await cli.parseAsync([
+      'node',
+      'buffer',
+      'post',
+      'Hello',
+      '--profile',
+      'p1',
+      '--time',
+      'not-a-date',
+    ]);
 
     expect(createPost).not.toHaveBeenCalled();
     expect(errSpy).toHaveBeenCalledWith(expect.stringContaining('Invalid schedule time'));
@@ -228,6 +268,15 @@ describe('buffer CLI', () => {
     expect(output).toContain('Post created successfully');
     expect(output).toContain('post_123');
     expect(output).toContain('Twitter');
+    expect(output).toContain('Next step: Run "buffer queue --limit 5"');
+  });
+
+  it('formats idea success output', () => {
+    const output = formatIdeaSuccess({ id: 'idea_123', text: 'Ship weekly update post' });
+
+    expect(output).toContain('Idea saved successfully');
+    expect(output).toContain('idea_123');
+    expect(output).toContain('Next step: Use "buffer ideas --limit 10"');
   });
 
   it('formats ideas output', () => {

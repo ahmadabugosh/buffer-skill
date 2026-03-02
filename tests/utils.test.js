@@ -42,7 +42,11 @@ describe('utils', () => {
 
   describe('parseProfilesList', () => {
     it('parses comma-separated profiles and trims values', () => {
-      expect(parseProfilesList('twitter, linkedin ,facebook')).toEqual(['twitter', 'linkedin', 'facebook']);
+      expect(parseProfilesList('twitter, linkedin ,facebook')).toEqual([
+        'twitter',
+        'linkedin',
+        'facebook',
+      ]);
     });
 
     it('returns empty list when value not provided', () => {
@@ -80,13 +84,15 @@ describe('utils', () => {
     });
 
     it('throws when multiple targeting options are set', () => {
-      expect(() => validatePostOptions({ profile: 'p1', all: true })).toThrow(/Choose only one target option/);
+      expect(() => validatePostOptions({ profile: 'p1', all: true })).toThrow(
+        /Choose only one target option/
+      );
     });
 
     it('throws when queue and time are mixed', () => {
-      expect(() => validatePostOptions({ profile: 'p1', queue: true, time: '2026-03-03T14:00:00Z' })).toThrow(
-        /Cannot use --queue and --time together/,
-      );
+      expect(() =>
+        validatePostOptions({ profile: 'p1', queue: true, time: '2026-03-03T14:00:00Z' })
+      ).toThrow(/Cannot use --queue and --time together/);
     });
   });
 

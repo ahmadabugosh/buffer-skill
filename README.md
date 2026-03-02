@@ -53,9 +53,11 @@ Buffer's public GraphQL beta docs do not yet document a finalized local file upl
 ```bash
 npm test
 npm run coverage
+npm run format:check
 ```
 
 Coverage is enforced with thresholds in `vitest.config.js`.
+Code style is standardized with Prettier (`npm run format`).
 
 ## API Docs
 

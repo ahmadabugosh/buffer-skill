@@ -40,7 +40,11 @@ export function formatProfiles(profiles) {
  * @returns {string}
  */
 export function formatPostSuccess(post) {
-  const services = (post.profiles || []).map((profile) => profile.service).filter(Boolean).join(', ') || 'unknown';
+  const services =
+    (post.profiles || [])
+      .map((profile) => profile.service)
+      .filter(Boolean)
+      .join(', ') || 'unknown';
   const lines = [
     `${chalk.green('✅')} Post created successfully`,
     `ID: ${post.id || 'n/a'}`,
@@ -52,6 +56,8 @@ export function formatPostSuccess(post) {
   } else {
     lines.push('Scheduled: immediate/queue');
   }
+
+  lines.push('Next step: Run "buffer queue --limit 5" to verify upcoming posts.');
 
   return lines.join('\n');
 }
@@ -71,7 +77,11 @@ export function formatQueuePosts(posts) {
   posts.forEach((post, index) => {
     const text = (post.text || '').trim();
     const preview = text.length > 80 ? `${text.slice(0, 77)}...` : text;
-    const services = (post.profiles || []).map((profile) => profile.service).filter(Boolean).join(', ') || 'unknown';
+    const services =
+      (post.profiles || [])
+        .map((profile) => profile.service)
+        .filter(Boolean)
+        .join(', ') || 'unknown';
     const scheduled = post.scheduledAt ? new Date(post.scheduledAt).toISOString() : 'n/a';
 
     lines.push(`${index + 1}. "${preview}" → ${services}`);
@@ -92,6 +102,7 @@ export function formatIdeaSuccess(idea) {
     `${chalk.green('✅')} Idea saved successfully`,
     `ID: ${idea.id || 'n/a'}`,
     `Text: ${(idea.text || '').trim() || 'n/a'}`,
+    'Next step: Use "buffer ideas --limit 10" to review your draft backlog.',
   ].join('\n');
 }
 
@@ -161,7 +172,8 @@ export function createCli({ api } = {}) {
     .action(async () => {
       const spinner = ora('Fetching connected profiles...').start();
       try {
-        const activeApi = api || new BufferApi({ ...getConfig(), apiKey: validateApiKey(getConfig().apiKey) });
+        const activeApi =
+          api || new BufferApi({ ...getConfig(), apiKey: validateApiKey(getConfig().apiKey) });
         const profiles = await activeApi.getProfiles();
         spinner.stop();
         console.log(formatProfiles(profiles));
@@ -185,7 +197,8 @@ export function createCli({ api } = {}) {
     .action(async (text, options) => {
       const spinner = ora(options.draft ? 'Saving idea...' : 'Creating post...').start();
       try {
-        const activeApi = api || new BufferApi({ ...getConfig(), apiKey: validateApiKey(getConfig().apiKey) });
+        const activeApi =
+          api || new BufferApi({ ...getConfig(), apiKey: validateApiKey(getConfig().apiKey) });
         validatePostOptions(options);
         const normalizedText = validatePostText(text);
 
@@ -233,7 +246,8 @@ export function createCli({ api } = {}) {
     .action(async (options) => {
       const spinner = ora('Fetching scheduled posts...').start();
       try {
-        const activeApi = api || new BufferApi({ ...getConfig(), apiKey: validateApiKey(getConfig().apiKey) });
+        const activeApi =
+          api || new BufferApi({ ...getConfig(), apiKey: validateApiKey(getConfig().apiKey) });
         const posts = await activeApi.getScheduledPosts(options.profile);
         const limit = parseLimit(options.limit);
 
@@ -254,7 +268,8 @@ export function createCli({ api } = {}) {
     .action(async (options) => {
       const spinner = ora('Fetching saved ideas...').start();
       try {
-        const activeApi = api || new BufferApi({ ...getConfig(), apiKey: validateApiKey(getConfig().apiKey) });
+        const activeApi =
+          api || new BufferApi({ ...getConfig(), apiKey: validateApiKey(getConfig().apiKey) });
         const ideas = await activeApi.getIdeas();
         const limit = parseLimit(options.limit);
 
