@@ -57,7 +57,7 @@ Connected Profiles:
   - [x] `--queue` - Add to queue instead of immediate/scheduled
   - [x] `--image <path>` - Attach image (local file path)
   - [x] `--draft` - Create as idea/draft instead of post
-- [ ] Validate inputs (text length, file exists, etc.)
+- [x] Validate inputs (text length, file exists, etc.)
 - [x] Clear success messages with post IDs/URLs
 
 **Examples:**
@@ -202,12 +202,12 @@ skills/buffer/
 ```
 
 ### 5. Error Handling
-- [ ] Network failures (timeout, offline)
-- [ ] API errors (401, 403, 429, 500)
-- [ ] Invalid inputs (missing required fields, invalid dates)
-- [ ] File not found (for images)
-- [ ] Rate limit exceeded (clear message + retry suggestion)
-- [ ] All errors should have:
+- [x] Network failures (timeout, offline)
+- [x] API errors (401, 403, 429, 500)
+- [x] Invalid inputs (missing required fields, invalid dates)
+- [x] File not found (for images)
+- [x] Rate limit exceeded (clear message + retry suggestion)
+- [x] All errors should have:
   - **What failed** (clear description)
   - **Why it failed** (root cause)
   - **How to fix** (actionable suggestion)
@@ -348,13 +348,13 @@ Rose: *executes buffer post command*
 33. [x] Test queue viewing
 
 ### Phase 5: Error Handling (Tasks 34-40)
-34. Add network error handling to API wrapper
-35. Add rate limit detection and friendly errors
-36. Add auth error handling (401, 403)
-37. Add input validation for all commands
+34. [x] Add network error handling to API wrapper
+35. [x] Add rate limit detection and friendly errors
+36. [x] Add auth error handling (401, 403)
+37. [x] Add input validation for all commands
 38. [x] Add file existence check for images
-39. Add date parsing validation
-40. Test all error scenarios
+39. [x] Add date parsing validation
+40. [x] Test all error scenarios
 
 ### Phase 6: Testing (Tasks 41-48)
 41. [x] Write API wrapper unit tests

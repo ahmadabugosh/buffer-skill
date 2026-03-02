@@ -11,6 +11,8 @@ import {
   parseScheduleTime,
   validatePostText,
   validateImagePath,
+  validatePostOptions,
+  parseLimit,
 } from './lib/utils.js';
 
 export function formatProfiles(profiles) {
@@ -149,6 +151,7 @@ export function createCli({ api } = {}) {
       const spinner = ora(options.draft ? 'Saving idea...' : 'Creating post...').start();
       try {
         const activeApi = api || new BufferApi({ ...getConfig(), apiKey: validateApiKey(getConfig().apiKey) });
+        validatePostOptions(options);
         const normalizedText = validatePostText(text);
 
         const profiles = options.all ? await activeApi.getProfiles() : [];
@@ -197,9 +200,9 @@ export function createCli({ api } = {}) {
       try {
         const activeApi = api || new BufferApi({ ...getConfig(), apiKey: validateApiKey(getConfig().apiKey) });
         const posts = await activeApi.getScheduledPosts(options.profile);
-        const limit = Number.parseInt(options.limit, 10);
+        const limit = parseLimit(options.limit);
 
-        const limited = Number.isNaN(limit) || limit <= 0 ? posts : posts.slice(0, limit);
+        const limited = posts.slice(0, limit);
         spinner.stop();
         console.log(formatQueuePosts(limited));
       } catch (error) {
@@ -218,9 +221,9 @@ export function createCli({ api } = {}) {
       try {
         const activeApi = api || new BufferApi({ ...getConfig(), apiKey: validateApiKey(getConfig().apiKey) });
         const ideas = await activeApi.getIdeas();
-        const limit = Number.parseInt(options.limit, 10);
+        const limit = parseLimit(options.limit);
 
-        const limited = Number.isNaN(limit) || limit <= 0 ? ideas : ideas.slice(0, limit);
+        const limited = ideas.slice(0, limit);
         spinner.stop();
         console.log(formatIdeas(limited));
       } catch (error) {

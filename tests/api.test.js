@@ -146,5 +146,25 @@ describe('BufferApi', () => {
     );
 
     await expect(api.getProfiles()).rejects.toThrow(/Authentication failed/);
+    await expect(api.getProfiles()).rejects.toThrow(/Fix:/);
+  });
+
+  it('maps 429 to rate-limit error with retry guidance', async () => {
+    const post = vi.fn().mockRejectedValue({
+      message: 'Request failed with status code 429',
+      response: { status: 429 },
+    });
+    const api = new BufferApi({ apiKey: 'key_1234567890', apiUrl: 'https://api.buffer.com/graphql' }, { post });
+
+    await expect(api.getProfiles()).rejects.toThrow(/Rate limit exceeded/);
+    await expect(api.getProfiles()).rejects.toThrow(/Wait about 60 seconds/);
+  });
+
+  it('maps generic network error to actionable message', async () => {
+    const post = vi.fn().mockRejectedValue({ message: 'connect ETIMEDOUT' });
+    const api = new BufferApi({ apiKey: 'key_1234567890', apiUrl: 'https://api.buffer.com/graphql' }, { post });
+
+    await expect(api.getProfiles()).rejects.toThrow(/network call/);
+    await expect(api.getProfiles()).rejects.toThrow(/Check internet connectivity/);
   });
 });

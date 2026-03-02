@@ -7,6 +7,8 @@ import {
   parseProfilesList,
   validatePostText,
   validateImagePath,
+  validatePostOptions,
+  parseLimit,
 } from '../lib/utils.js';
 
 describe('utils', () => {
@@ -69,6 +71,33 @@ describe('utils', () => {
 
     it('throws when file does not exist', () => {
       expect(() => validateImagePath('/tmp/does-not-exist.jpg')).toThrow(/Image file not found/);
+    });
+  });
+
+  describe('validatePostOptions', () => {
+    it('allows exactly one targeting option', () => {
+      expect(() => validatePostOptions({ profile: 'p1' })).not.toThrow();
+    });
+
+    it('throws when multiple targeting options are set', () => {
+      expect(() => validatePostOptions({ profile: 'p1', all: true })).toThrow(/Choose only one target option/);
+    });
+
+    it('throws when queue and time are mixed', () => {
+      expect(() => validatePostOptions({ profile: 'p1', queue: true, time: '2026-03-03T14:00:00Z' })).toThrow(
+        /Cannot use --queue and --time together/,
+      );
+    });
+  });
+
+  describe('parseLimit', () => {
+    it('parses positive integer values', () => {
+      expect(parseLimit('5')).toBe(5);
+    });
+
+    it('throws for invalid values', () => {
+      expect(() => parseLimit('zero')).toThrow(/Invalid --limit value/);
+      expect(() => parseLimit('0')).toThrow(/Invalid --limit value/);
     });
   });
 });

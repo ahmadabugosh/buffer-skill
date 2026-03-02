@@ -161,6 +161,35 @@ describe('buffer CLI', () => {
     expect(logSpy).toHaveBeenCalledWith(expect.stringContaining('Idea saved successfully'));
   });
 
+  it('rejects conflicting post target options', async () => {
+    const createPost = vi.fn();
+    const cli = createCli({ api: { createPost } });
+
+    await cli.parseAsync(['node', 'buffer', 'post', 'Hello', '--profile', 'p1', '--all']);
+
+    expect(createPost).not.toHaveBeenCalled();
+    expect(errSpy).toHaveBeenCalledWith(expect.stringContaining('Choose only one target option'));
+  });
+
+  it('rejects invalid schedule time for post command', async () => {
+    const createPost = vi.fn();
+    const cli = createCli({ api: { createPost } });
+
+    await cli.parseAsync(['node', 'buffer', 'post', 'Hello', '--profile', 'p1', '--time', 'not-a-date']);
+
+    expect(createPost).not.toHaveBeenCalled();
+    expect(errSpy).toHaveBeenCalledWith(expect.stringContaining('Invalid schedule time'));
+  });
+
+  it('rejects non-positive queue limit', async () => {
+    const getScheduledPosts = vi.fn().mockResolvedValue([]);
+    const cli = createCli({ api: { getScheduledPosts } });
+
+    await cli.parseAsync(['node', 'buffer', 'queue', '--limit', '0']);
+
+    expect(errSpy).toHaveBeenCalledWith(expect.stringContaining('Invalid --limit value'));
+  });
+
   it('executes ideas command with limit', async () => {
     const getIdeas = vi.fn().mockResolvedValue([
       { id: 'idea_1', text: 'Idea one', createdAt: '2026-03-02T12:00:00.000Z' },
