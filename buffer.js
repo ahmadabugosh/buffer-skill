@@ -14,6 +14,13 @@ import {
   validatePostOptions,
   parseLimit,
 } from './lib/utils.js';
+import {
+  CLI_NAME,
+  CLI_VERSION,
+  DEFAULT_QUEUE_LIMIT,
+  IDEA_SUCCESS_HINT_LIMIT,
+  POST_SUCCESS_QUEUE_HINT_LIMIT,
+} from './lib/constants.js';
 
 /**
  * Render profiles command output.
@@ -57,7 +64,9 @@ export function formatPostSuccess(post) {
     lines.push('Scheduled: immediate/queue');
   }
 
-  lines.push('Next step: Run "buffer queue --limit 5" to verify upcoming posts.');
+  lines.push(
+    `Next step: Run "${CLI_NAME} queue --limit ${POST_SUCCESS_QUEUE_HINT_LIMIT}" to verify upcoming posts.`
+  );
 
   return lines.join('\n');
 }
@@ -102,7 +111,7 @@ export function formatIdeaSuccess(idea) {
     `${chalk.green('✅')} Idea saved successfully`,
     `ID: ${idea.id || 'n/a'}`,
     `Text: ${(idea.text || '').trim() || 'n/a'}`,
-    'Next step: Use "buffer ideas --limit 10" to review your draft backlog.',
+    `Next step: Use "${CLI_NAME} ideas --limit ${IDEA_SUCCESS_HINT_LIMIT}" to review your draft backlog.`,
   ].join('\n');
 }
 
@@ -162,9 +171,9 @@ export function createCli({ api } = {}) {
   const program = new Command();
 
   program
-    .name('buffer')
+    .name(CLI_NAME)
     .description('Buffer CLI for posting and profile management')
-    .version('1.0.0');
+    .version(CLI_VERSION);
 
   program
     .command('profiles')
@@ -242,7 +251,7 @@ export function createCli({ api } = {}) {
     .command('queue')
     .description('View pending/scheduled posts')
     .option('--profile <id>', 'Filter by profile ID')
-    .option('--limit <n>', 'Limit number of posts shown', '10')
+    .option('--limit <n>', 'Limit number of posts shown', String(DEFAULT_QUEUE_LIMIT))
     .action(async (options) => {
       const spinner = ora('Fetching scheduled posts...').start();
       try {
@@ -264,7 +273,7 @@ export function createCli({ api } = {}) {
   program
     .command('ideas')
     .description('List saved ideas/drafts')
-    .option('--limit <n>', 'Limit number of ideas shown', '10')
+    .option('--limit <n>', 'Limit number of ideas shown', String(DEFAULT_QUEUE_LIMIT))
     .action(async (options) => {
       const spinner = ora('Fetching saved ideas...').start();
       try {

@@ -295,7 +295,7 @@ Rose: *executes buffer post command*
 
 - [x] Consistent code style (use Prettier/ESLint if time permits)
 - [x] Meaningful variable names
-- [ ] No hardcoded values (use constants/config)
+- [x] No hardcoded values (use constants/config)
 - [x] Helpful terminal output (colors, emojis, clear formatting)
 - [x] Loading indicators for API calls (use `ora` or similar)
 - [x] Success confirmations with actionable next steps
@@ -417,8 +417,8 @@ Rose: *executes buffer post command*
 59. [x] Format all output clearly (tables, lists)
 60. [x] Add success messages with next steps
 61. [x] Make buffer.js executable (chmod +x)
-62. [ ] Test full workflow end-to-end
-63. [ ] Final cleanup and verification
+62. [x] Test full workflow end-to-end
+63. [x] Final cleanup and verification
 
 ### Phase 9: GitHub & Deployment (Tasks 64-68)
 

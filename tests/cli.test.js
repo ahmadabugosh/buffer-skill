@@ -287,4 +287,61 @@ describe('buffer CLI', () => {
     expect(output).toContain('Saved Ideas (1)');
     expect(output).toContain('New campaign concept');
   });
+
+  it('runs end-to-end workflow across profiles, post, queue, draft, and ideas', async () => {
+    const api = {
+      getProfiles: vi
+        .fn()
+        .mockResolvedValueOnce([{ id: 'p1', service: 'Twitter', username: 'learnopenclaw' }])
+        .mockResolvedValueOnce([{ id: 'p1', service: 'Twitter', username: 'learnopenclaw' }]),
+      createPost: vi.fn().mockResolvedValue({
+        id: 'post_e2e_1',
+        text: 'Ship it',
+        profiles: [{ service: 'Twitter' }],
+      }),
+      getScheduledPosts: vi.fn().mockResolvedValue([
+        {
+          id: 'sched_e2e_1',
+          text: 'Ship it',
+          scheduledAt: '2026-03-03T14:00:00.000Z',
+          profiles: [{ service: 'Twitter', username: 'learnopenclaw' }],
+        },
+      ]),
+      createIdea: vi.fn().mockResolvedValue({ id: 'idea_e2e_1', text: 'Future campaign' }),
+      getIdeas: vi
+        .fn()
+        .mockResolvedValue([
+          { id: 'idea_e2e_1', text: 'Future campaign', createdAt: '2026-03-02T10:00:00.000Z' },
+        ]),
+    };
+
+    await createCli({ api }).parseAsync(['node', 'buffer', 'profiles']);
+    await createCli({ api }).parseAsync(['node', 'buffer', 'post', 'Ship it', '--all']);
+    await createCli({ api }).parseAsync(['node', 'buffer', 'queue', '--limit', '1']);
+    await createCli({ api }).parseAsync([
+      'node',
+      'buffer',
+      'post',
+      'Future campaign',
+      '--profile',
+      'p1',
+      '--draft',
+    ]);
+    await createCli({ api }).parseAsync(['node', 'buffer', 'ideas', '--limit', '1']);
+
+    expect(api.getProfiles).toHaveBeenCalledTimes(2);
+    expect(api.createPost).toHaveBeenCalledWith({
+      text: 'Ship it',
+      profileIds: ['p1'],
+      queue: false,
+    });
+    expect(api.getScheduledPosts).toHaveBeenCalledWith(undefined);
+    expect(api.createIdea).toHaveBeenCalledWith({ text: 'Future campaign', profileIds: ['p1'] });
+    expect(api.getIdeas).toHaveBeenCalledTimes(1);
+    expect(logSpy).toHaveBeenCalledWith(expect.stringContaining('Connected Profiles'));
+    expect(logSpy).toHaveBeenCalledWith(expect.stringContaining('Post created successfully'));
+    expect(logSpy).toHaveBeenCalledWith(expect.stringContaining('Upcoming Posts (1)'));
+    expect(logSpy).toHaveBeenCalledWith(expect.stringContaining('Idea saved successfully'));
+    expect(logSpy).toHaveBeenCalledWith(expect.stringContaining('Saved Ideas (1)'));
+  });
 });
