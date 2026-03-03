@@ -213,6 +213,12 @@ export function createCli({ api } = {}) {
 
         const profiles = options.all ? await activeApi.getProfiles() : [];
         const profileIds = resolveProfileIds(options, profiles);
+        
+        // Buffer API currently only supports one channel per post
+        const channelId = profileIds[0];
+        if (!channelId) {
+          throw new Error('No channel ID specified. Use --profile <id> to specify a channel.');
+        }
 
         if (options.draft) {
           const createdIdea = await activeApi.createIdea({ text: normalizedText, profileIds });
@@ -225,7 +231,8 @@ export function createCli({ api } = {}) {
         const imagePath = validateImagePath(options.image);
         const input = {
           text: normalizedText,
-          profileIds,
+          channelId,
+          now: !options.queue && !scheduledAt,
           queue: Boolean(options.queue),
           ...(scheduledAt ? { scheduledAt } : {}),
           ...(imagePath
