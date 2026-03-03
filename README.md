@@ -14,6 +14,37 @@ Social media is powerful, but managing posts across multiple platforms is time-c
 
 Whether you're a solopreneur managing your own socials or building automation workflows, this skill makes Buffer feel like part of your command line.
 
+## 📦 Installation
+
+### Quick Install (ClawHub)
+
+The easiest way to add this skill to your OpenClaw:
+
+```bash
+# Install ClawHub CLI (first time only)
+npm install -g clawhub
+
+# Install the Buffer skill
+clawhub install buffer-social
+```
+
+That's it! OpenClaw will automatically discover and load the skill.
+
+### Manual Installation
+
+Alternatively, clone and set up manually:
+
+```bash
+cd ~/.openclaw/workspace/skills
+git clone https://github.com/ahmadabugosh/openclaw-buffer-skill.git buffer
+cd buffer
+npm install
+cp .env.example .env
+# Add your BUFFER_API_KEY to .env
+```
+
+Get your API key: [Buffer Developer Settings](https://publish.buffer.com/settings/api)
+
 ## ✨ How It Works
 
 This skill is a **production-ready Node.js CLI** that talks directly to Buffer's GraphQL API. OpenClaw loads it as an agent skill, giving you natural language control:
@@ -30,13 +61,22 @@ Behind the scenes:
 
 ## 🚀 Quick Start
 
-### Installation
+### Setup Your Buffer API Key
 
+After installation, configure your Buffer API key:
+
+**If installed via ClawHub:**
 ```bash
-cd skills/buffer
-npm install
+cd ~/.openclaw/workspace/skills/buffer-social
 cp .env.example .env
-# Add your BUFFER_API_KEY to .env
+# Edit .env and add your BUFFER_API_KEY
+```
+
+**If installed manually:**
+```bash
+cd ~/.openclaw/workspace/skills/buffer
+cp .env.example .env
+# Edit .env and add your BUFFER_API_KEY
 ```
 
 Get your API key: [Buffer Developer Settings](https://publish.buffer.com/settings/api)
